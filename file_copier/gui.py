@@ -15,6 +15,7 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QFont, QIcon
 
 from .copier import FileCopier, CopyTask
+from .config import get_config_manager, AppConfig
 
 
 class CopyWorker(QThread):
@@ -61,8 +62,56 @@ class MainWindow(QMainWindow):
         }
         self.ignore_image_formats = False
         
+        # 初始化配置管理器
+        self.config_manager = get_config_manager()
+        self.config = self.config_manager.load()
+        
         self._setup_ui()
         self._apply_styles()
+        self._load_config()
+    
+    def _load_config(self):
+        """加载配置文件中的设置"""
+        # 恢复文件路径
+        if self.config.source_path and Path(self.config.source_path).exists():
+            self.source_edit.setText(self.config.source_path)
+        if self.config.target_path and Path(self.config.target_path).exists():
+            self.target_edit.setText(self.config.target_path)
+        
+        # 恢复设置选项
+        self.ignore_image_check.setChecked(self.config.ignore_image_formats)
+        self.compare_content_check.setChecked(self.config.compare_content)
+        
+        # 恢复窗口大小
+        if self.config.window_width >= 900 and self.config.window_height >= 700:
+            self.resize(self.config.window_width, self.config.window_height)
+        
+        # 记录日志
+        if self.config.source_path or self.config.target_path:
+            self._log("已恢复上次使用的路径")
+    
+    def closeEvent(self, event):
+        """窗口关闭事件，保存配置"""
+        # 保存当前路径
+        self.config_manager.update_paths(
+            source_path=self.source_edit.text().strip(),
+            target_path=self.target_edit.text().strip()
+        )
+        
+        # 保存设置选项
+        self.config_manager.update_settings(
+            ignore_image_formats=self.ignore_image_check.isChecked(),
+            compare_content=self.compare_content_check.isChecked()
+        )
+        
+        # 保存窗口大小
+        self.config_manager.update_window_size(self.width(), self.height())
+        
+        # 写入配置文件
+        self.config_manager.save()
+        self._log("配置已保存")
+        
+        event.accept()
     
     def _setup_ui(self):
         """设置界面"""
@@ -142,12 +191,6 @@ class MainWindow(QMainWindow):
         self.start_btn.setEnabled(False)
         self.start_btn.clicked.connect(self._start_copy)
         button_layout.addWidget(self.start_btn)
-        
-        self.cancel_btn = QPushButton("取消")
-        self.cancel_btn.setMinimumHeight(40)
-        self.cancel_btn.setEnabled(False)
-        self.cancel_btn.clicked.connect(self._cancel_copy)
-        button_layout.addWidget(self.cancel_btn)
         
         main_layout.addLayout(button_layout)
         
@@ -263,12 +306,6 @@ class MainWindow(QMainWindow):
             QPushButton:disabled {
                 background-color: #cccccc;
             }
-            QPushButton#cancel_btn {
-                background-color: #f44336;
-            }
-            QPushButton#cancel_btn:hover {
-                background-color: #da190b;
-            }
             QLineEdit {
                 padding: 6px;
                 border: 1px solid #cccccc;
@@ -302,7 +339,6 @@ class MainWindow(QMainWindow):
                 font-weight: bold;
             }
         """)
-        self.cancel_btn.setObjectName("cancel_btn")
         
         # 复选框样式
         self.setStyleSheet(self.styleSheet() + """
@@ -456,7 +492,8 @@ class MainWindow(QMainWindow):
             if self.copy_tasks:
                 self.start_btn.setEnabled(True)
             else:
-                QMessageBox.information(self, "提示", "未找到同名同格式的文件！")
+                self._log("未找到同名同格式的文件！")
+                self.stats_label.setText("未找到同名同格式的文件")
                 self.start_btn.setEnabled(False)
                 
         except Exception as e:
@@ -619,7 +656,6 @@ class MainWindow(QMainWindow):
         self.start_btn.setEnabled(False)
         self.source_btn.setEnabled(False)
         self.target_btn.setEnabled(False)
-        self.cancel_btn.setEnabled(True)
         
         # 重置进度条
         self.progress_bar.setMaximum(len(self.copy_tasks))
@@ -646,7 +682,6 @@ class MainWindow(QMainWindow):
         self.start_btn.setEnabled(True)
         self.source_btn.setEnabled(True)
         self.target_btn.setEnabled(True)
-        self.cancel_btn.setEnabled(False)
         
         # 显示结果
         self._log(f"复制完成!")
@@ -662,22 +697,13 @@ class MainWindow(QMainWindow):
             f"完成! 成功: {result.success} 个, 失败: {result.failed} 个"
         )
         
-        # 完成提示
-        if result.failed == 0:
-            QMessageBox.information(self, "完成", f"复制完成！成功复制 {result.success} 个文件。")
-        else:
+        # 只有失败时才弹窗提示
+        if result.failed > 0:
             QMessageBox.warning(
                 self, 
                 "完成", 
                 f"复制完成，但有错误。\n成功: {result.success} 个\n失败: {result.failed} 个"
             )
-    
-    def _cancel_copy(self):
-        """取消复制"""
-        if self.worker and self.worker.isRunning():
-            self.worker.cancel()
-            self._log("正在取消操作...")
-            self.cancel_btn.setEnabled(False)
 
 
 def main():
