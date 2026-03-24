@@ -1,0 +1,305 @@
+2026-03-23 16:06:03,747 - utils.config_manager - INFO - 配置加载成功
+2026-03-23 16:06:03,747 - utils.style_manager - INFO - 样式目录: G:\GitHub\WindowsScript\DocManager\gui\styles
+2026-03-23 16:06:03,747 - utils.style_manager - INFO - 样式目录存在: True
+2026-03-23 16:06:03,747 - utils.style_manager - INFO - 加载样式文件: G:\GitHub\WindowsScript\DocManager\gui\styles\dark.qss
+2026-03-23 16:06:03,748 - utils.style_manager - INFO - 样式文件加载成功，长度: 8897
+2026-03-23 16:06:03,748 - utils.style_manager - INFO - 主题应用成功: dark
+2026-03-23 16:06:04,015 - gui.components.document_area - INFO - 切换到 list 视图
+2026-03-23 16:23:00,752 - utils.config_manager - INFO - 配置加载成功
+2026-03-23 16:23:00,753 - utils.style_manager - INFO - 样式目录: G:\GitHub\WindowsScript\DocManager\gui\styles
+2026-03-23 16:23:00,753 - utils.style_manager - INFO - 样式目录存在: True
+2026-03-23 16:23:00,754 - utils.style_manager - INFO - 加载样式文件: G:\GitHub\WindowsScript\DocManager\gui\styles\dark.qss
+2026-03-23 16:23:00,754 - utils.style_manager - INFO - 样式文件加载成功，长度: 8897
+2026-03-23 16:23:00,754 - utils.style_manager - INFO - 主题应用成功: dark
+2026-03-23 16:23:00,994 - gui.components.document_area - INFO - 切换到 list 视图
+2026-03-23 16:23:02,855 - utils.config_manager - INFO - 配置保存成功
+2026-03-23 16:23:02,874 - core.database - INFO - 数据库连接成功: G:/资料库/Pan文档库/Pan文档库.db
+2026-03-23 16:23:02,876 - gui.components.sidebar - INFO - 加载分类完成
+2026-03-23 16:23:02,878 - gui.components.sidebar - INFO - 加载标签完成
+2026-03-23 16:23:02,879 - gui.components.sidebar - INFO - 加载智能文件夹完成
+2026-03-23 16:23:02,880 - gui.components.document_list - INFO - 加载了 1 个文档
+2026-03-23 16:23:02,885 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 16:23:02,886 - utils.config_manager - INFO - 配置保存成功
+2026-03-23 16:23:02,886 - gui.main_window - INFO - 库打开成功: Pan文档库
+2026-03-23 16:23:02,946 - core.database - INFO - 数据库连接已关闭
+2026-03-23 16:23:02,947 - core.database - INFO - 数据库连接成功: G:/资料库/Pan文档库/Pan文档库.db
+2026-03-23 16:23:02,948 - gui.components.sidebar - INFO - 加载分类完成
+2026-03-23 16:23:02,949 - gui.components.sidebar - INFO - 加载标签完成
+2026-03-23 16:23:02,949 - gui.components.sidebar - INFO - 加载智能文件夹完成
+2026-03-23 16:23:02,953 - gui.components.document_list - INFO - 加载了 1 个文档
+2026-03-23 16:23:02,954 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 16:23:02,955 - utils.config_manager - INFO - 配置保存成功
+2026-03-23 16:23:02,955 - gui.main_window - INFO - 库打开成功: Pan文档库
+2026-03-23 16:23:04,728 - gui.statistics_window - INFO - 统计数据加载完成
+2026-03-23 16:23:05,725 - gui.statistics_window - INFO - 统计数据加载完成
+2026-03-23 16:23:06,055 - gui.statistics_window - INFO - 统计数据加载完成
+2026-03-23 16:23:11,413 - gui.statistics_window - INFO - 统计数据加载完成
+2026-03-23 16:23:11,788 - gui.unorganized_center - INFO - 加载待整理文档: 0 个
+2026-03-23 16:23:16,717 - gui.statistics_window - INFO - 统计数据加载完成
+2026-03-23 16:23:16,889 - gui.statistics_window - INFO - 统计数据加载完成
+2026-03-23 16:23:20,215 - utils.config_manager - INFO - 配置保存成功
+2026-03-23 16:23:20,216 - core.database - INFO - 数据库连接已关闭
+2026-03-23 17:13:38,938 - utils.config_manager - INFO - 配置加载成功
+2026-03-23 17:13:38,938 - utils.style_manager - INFO - 样式目录: G:\GitHub\WindowsScript\DocManager\gui\styles
+2026-03-23 17:13:38,939 - utils.style_manager - INFO - 样式目录存在: True
+2026-03-23 17:13:38,939 - utils.style_manager - INFO - 加载样式文件: G:\GitHub\WindowsScript\DocManager\gui\styles\dark.qss
+2026-03-23 17:13:38,939 - utils.style_manager - INFO - 样式文件加载成功，长度: 8897
+2026-03-23 17:13:38,939 - utils.style_manager - INFO - 主题应用成功: dark
+2026-03-23 17:13:39,177 - gui.components.document_area - INFO - 切换到 list 视图
+2026-03-23 17:13:44,711 - utils.config_manager - INFO - 配置保存成功
+2026-03-23 17:13:44,729 - core.database - INFO - 数据库连接成功: G:/资料库/Pan文档库/Pan文档库.db
+2026-03-23 17:13:44,731 - gui.components.sidebar - INFO - 加载分类完成
+2026-03-23 17:13:44,732 - gui.components.sidebar - INFO - 加载标签完成
+2026-03-23 17:13:44,734 - gui.components.sidebar - INFO - 加载智能文件夹完成
+2026-03-23 17:13:44,735 - gui.components.document_list - INFO - 加载了 1 个文档
+2026-03-23 17:13:44,740 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:13:44,740 - utils.config_manager - INFO - 配置保存成功
+2026-03-23 17:13:44,741 - gui.main_window - INFO - 库打开成功: Pan文档库
+2026-03-23 17:13:44,778 - core.database - INFO - 数据库连接已关闭
+2026-03-23 17:13:44,779 - core.database - INFO - 数据库连接成功: G:/资料库/Pan文档库/Pan文档库.db
+2026-03-23 17:13:44,780 - gui.components.sidebar - INFO - 加载分类完成
+2026-03-23 17:13:44,780 - gui.components.sidebar - INFO - 加载标签完成
+2026-03-23 17:13:44,781 - gui.components.sidebar - INFO - 加载智能文件夹完成
+2026-03-23 17:13:44,785 - gui.components.document_list - INFO - 加载了 1 个文档
+2026-03-23 17:13:44,787 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:13:44,788 - utils.config_manager - INFO - 配置保存成功
+2026-03-23 17:13:44,788 - gui.main_window - INFO - 库打开成功: Pan文档库
+2026-03-23 17:13:46,067 - gui.statistics_window - ERROR - 加载统计数据失败: 'StatisticsManager' object has no attribute 'get_category_distribution'
+2026-03-23 17:13:48,192 - gui.statistics_window - ERROR - 加载统计数据失败: 'StatisticsManager' object has no attribute 'get_category_distribution'
+2026-03-23 17:13:48,899 - gui.unorganized_center - INFO - 加载待整理文档: 0 个
+2026-03-23 17:13:51,671 - gui.statistics_window - ERROR - 加载统计数据失败: 'StatisticsManager' object has no attribute 'get_category_distribution'
+2026-03-23 17:13:51,993 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:13:51,994 - gui.components.document_area - INFO - 切换到 grid 视图
+2026-03-23 17:13:52,543 - gui.components.document_area - INFO - 切换到 grid 视图
+2026-03-23 17:13:53,041 - gui.components.document_area - INFO - 切换到 list 视图
+2026-03-23 17:13:53,624 - gui.components.document_area - INFO - 切换到 grid 视图
+2026-03-23 17:13:55,776 - gui.statistics_window - ERROR - 加载统计数据失败: 'StatisticsManager' object has no attribute 'get_category_distribution'
+2026-03-23 17:13:55,928 - gui.statistics_window - ERROR - 加载统计数据失败: 'StatisticsManager' object has no attribute 'get_category_distribution'
+2026-03-23 17:14:16,193 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,219 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,236 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,257 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,282 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,297 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,314 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,337 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,353 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,370 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,393 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,419 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,441 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,457 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,483 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,499 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:16,521 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:19,691 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:19,713 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:19,729 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:19,753 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:19,768 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:19,785 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:19,802 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:19,826 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:19,890 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:20,019 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:20,040 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:22,697 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:22,715 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:22,737 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:22,761 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:22,785 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:22,803 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:22,825 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:22,852 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,264 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,273 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,280 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,287 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,295 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,303 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,311 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,319 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,335 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,343 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,352 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,359 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,366 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,383 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,391 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,399 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,409 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,418 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,425 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,431 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,663 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,695 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,703 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,711 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,719 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,727 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,735 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:24,743 - gui.components.document_grid - INFO - 网格视图加载了 1 个文档
+2026-03-23 17:14:27,306 - gui.unorganized_center - INFO - 加载待整理文档: 0 个
+2026-03-23 17:15:02,786 - utils.config_manager - INFO - 配置保存成功
+2026-03-23 17:15:02,787 - core.database - INFO - 数据库连接已关闭
+2026-03-23 17:29:22,714 - utils.config_manager - INFO - 配置加载成功
+2026-03-23 17:29:22,714 - utils.style_manager - INFO - 样式目录: G:\GitHub\WindowsScript\DocManager\gui\styles
+2026-03-23 17:29:22,714 - utils.style_manager - INFO - 样式目录存在: True
+2026-03-23 17:29:22,714 - utils.style_manager - INFO - 加载样式文件: G:\GitHub\WindowsScript\DocManager\gui\styles\dark.qss
+2026-03-23 17:29:22,715 - utils.style_manager - INFO - 样式文件加载成功，长度: 8897
+2026-03-23 17:29:22,715 - utils.style_manager - INFO - 主题应用成功: dark
+2026-03-23 17:29:22,973 - gui.components.document_area - INFO - 切换到 list 视图
+2026-03-24 11:10:17,060 - utils.config_manager - INFO - 配置加载成功
+2026-03-24 11:10:17,064 - utils.style_manager - INFO - 样式目录: G:\GitHub\WindowsScript\DocManager\gui\styles
+2026-03-24 11:10:17,065 - utils.style_manager - INFO - 样式目录存在: True
+2026-03-24 11:10:17,065 - utils.style_manager - INFO - 加载样式文件: G:\GitHub\WindowsScript\DocManager\gui\styles\dark.qss
+2026-03-24 11:10:17,065 - utils.style_manager - INFO - 样式文件加载成功，长度: 8897
+2026-03-24 11:10:17,066 - utils.style_manager - INFO - 主题应用成功: dark
+2026-03-24 11:10:17,502 - gui.components.document_area - INFO - 切换到 list 视图
+2026-03-24 11:10:19,534 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 11:10:19,550 - core.database - INFO - 数据库连接成功: G:/资料库/Pan文档库/Pan文档库.db
+2026-03-24 11:10:19,552 - gui.components.sidebar - INFO - 加载分类完成
+2026-03-24 11:10:19,554 - gui.components.sidebar - INFO - 加载标签完成
+2026-03-24 11:10:19,555 - gui.components.sidebar - INFO - 加载智能文件夹完成
+2026-03-24 11:10:19,557 - gui.components.document_list - INFO - 加载了 11 个文档
+2026-03-24 11:10:19,598 - gui.components.document_grid - INFO - 网格视图加载了 11 个文档
+2026-03-24 11:10:19,599 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 11:10:19,599 - gui.main_window - INFO - 库打开成功: Pan文档库
+2026-03-24 11:10:19,651 - core.database - INFO - 数据库连接已关闭
+2026-03-24 11:10:19,652 - core.database - INFO - 数据库连接成功: G:/资料库/Pan文档库/Pan文档库.db
+2026-03-24 11:10:19,653 - gui.components.sidebar - INFO - 加载分类完成
+2026-03-24 11:10:19,653 - gui.components.sidebar - INFO - 加载标签完成
+2026-03-24 11:10:19,654 - gui.components.sidebar - INFO - 加载智能文件夹完成
+2026-03-24 11:10:19,679 - gui.components.document_list - INFO - 加载了 11 个文档
+2026-03-24 11:10:19,690 - gui.components.document_grid - INFO - 网格视图加载了 11 个文档
+2026-03-24 11:10:19,698 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 11:10:19,703 - gui.main_window - INFO - 库打开成功: Pan文档库
+2026-03-24 11:10:20,698 - gui.components.detail_panel - ERROR - 加载分类失败: 'CategoryManager' object has no attribute 'get_document_categories'
+2026-03-24 11:10:20,698 - gui.components.detail_panel - ERROR - 加载标签失败: 'TagManager' object has no attribute 'get_document_tags'
+2026-03-24 11:10:20,705 - gui.components.detail_panel - INFO - 加载文档详情: A9 角色 3D 美术管线规_12.29日.docx
+2026-03-24 11:10:24,782 - gui.components.detail_panel - ERROR - 加载分类失败: 'CategoryManager' object has no attribute 'get_document_categories'
+2026-03-24 11:10:24,783 - gui.components.detail_panel - ERROR - 加载标签失败: 'TagManager' object has no attribute 'get_document_tags'
+2026-03-24 11:10:24,784 - gui.components.detail_panel - INFO - 加载文档详情: A9进度表.xlsx
+2026-03-24 11:10:25,287 - gui.components.detail_panel - ERROR - 加载分类失败: 'CategoryManager' object has no attribute 'get_document_categories'
+2026-03-24 11:10:25,287 - gui.components.detail_panel - ERROR - 加载标签失败: 'TagManager' object has no attribute 'get_document_tags'
+2026-03-24 11:10:25,288 - gui.components.detail_panel - INFO - 加载文档详情: 《香肠派对》动画设计分析总结（精简版）.pptx
+2026-03-24 11:10:25,671 - gui.components.detail_panel - ERROR - 加载分类失败: 'CategoryManager' object has no attribute 'get_document_categories'
+2026-03-24 11:10:25,671 - gui.components.detail_panel - ERROR - 加载标签失败: 'TagManager' object has no attribute 'get_document_tags'
+2026-03-24 11:10:25,672 - gui.components.detail_panel - INFO - 加载文档详情: 《香肠派对》动画设计分析总结（适中版）.pptx
+2026-03-24 11:10:25,958 - gui.components.detail_panel - ERROR - 加载分类失败: 'CategoryManager' object has no attribute 'get_document_categories'
+2026-03-24 11:10:25,958 - gui.components.detail_panel - ERROR - 加载标签失败: 'TagManager' object has no attribute 'get_document_tags'
+2026-03-24 11:10:25,959 - gui.components.detail_panel - INFO - 加载文档详情: 《香肠派对》动画设计分析总结（详细版）.pptx
+2026-03-24 11:10:36,765 - gui.components.detail_panel - ERROR - 添加分类失败: 'CategoryManager' object has no attribute 'get_document_categories'
+2026-03-24 11:10:39,918 - gui.components.detail_panel - ERROR - 添加分类失败: 'CategoryManager' object has no attribute 'get_document_categories'
+2026-03-24 11:11:06,870 - gui.components.detail_panel - ERROR - 加载分类失败: 'CategoryManager' object has no attribute 'get_document_categories'
+2026-03-24 11:11:06,871 - gui.components.detail_panel - ERROR - 加载标签失败: 'TagManager' object has no attribute 'get_document_tags'
+2026-03-24 11:11:06,871 - gui.components.detail_panel - INFO - 加载文档详情: 《香肠派对》动画设计分析总结（适中版）.pptx
+2026-03-24 11:11:10,296 - gui.components.document_grid - INFO - 网格视图加载了 11 个文档
+2026-03-24 11:11:10,302 - gui.components.document_area - INFO - 切换到 grid 视图
+2026-03-24 11:11:12,449 - gui.components.document_area - INFO - 切换到 list 视图
+2026-03-24 11:11:13,944 - gui.unorganized_center - INFO - 加载待整理文档: 10 个
+2026-03-24 11:11:25,279 - gui.statistics_window - INFO - 统计数据加载完成
+2026-03-24 11:26:58,923 - utils.config_manager - INFO - 配置加载成功
+2026-03-24 11:26:58,923 - utils.style_manager - INFO - 样式目录: G:\GitHub\WindowsScript\DocManager\gui\styles
+2026-03-24 11:26:58,923 - utils.style_manager - INFO - 样式目录存在: True
+2026-03-24 11:26:58,924 - utils.style_manager - INFO - 加载样式文件: G:\GitHub\WindowsScript\DocManager\gui\styles\dark.qss
+2026-03-24 11:26:58,946 - utils.style_manager - INFO - 样式文件加载成功，长度: 8897
+2026-03-24 11:26:58,947 - utils.style_manager - INFO - 主题应用成功: dark
+2026-03-24 11:26:59,046 - __main__ - ERROR - 应用启动失败: unindent does not match any outer indentation level (detail_panel.py, line 326)
+Traceback (most recent call last):
+  File "G:\GitHub\WindowsScript\DocManager\main.py", line 44, in main
+    from gui.main_window import MainWindow
+  File "G:\GitHub\WindowsScript\DocManager\gui\main_window.py", line 18, in <module>
+    from gui.components.detail_panel import DetailPanel
+  File "G:\GitHub\WindowsScript\DocManager\gui\components\detail_panel.py", line 326
+    from core.document import DocumentManager
+                                             ^
+IndentationError: unindent does not match any outer indentation level
+2026-03-24 11:27:49,692 - utils.config_manager - INFO - 配置加载成功
+2026-03-24 11:27:49,693 - utils.style_manager - INFO - 样式目录: G:\GitHub\WindowsScript\DocManager\gui\styles
+2026-03-24 11:27:49,693 - utils.style_manager - INFO - 样式目录存在: True
+2026-03-24 11:27:49,693 - utils.style_manager - INFO - 加载样式文件: G:\GitHub\WindowsScript\DocManager\gui\styles\dark.qss
+2026-03-24 11:27:49,694 - utils.style_manager - INFO - 样式文件加载成功，长度: 8897
+2026-03-24 11:27:49,694 - utils.style_manager - INFO - 主题应用成功: dark
+2026-03-24 11:27:49,714 - __main__ - ERROR - 应用启动失败: unindent does not match any outer indentation level (detail_panel.py, line 326)
+Traceback (most recent call last):
+  File "G:\GitHub\WindowsScript\DocManager\main.py", line 44, in main
+    from gui.main_window import MainWindow
+  File "G:\GitHub\WindowsScript\DocManager\gui\main_window.py", line 18, in <module>
+    from gui.components.detail_panel import DetailPanel
+  File "G:\GitHub\WindowsScript\DocManager\gui\components\detail_panel.py", line 326
+    from core.document import DocumentManager
+                                             ^
+IndentationError: unindent does not match any outer indentation level
+2026-03-24 11:28:38,016 - utils.config_manager - INFO - 配置加载成功
+2026-03-24 11:28:38,016 - utils.style_manager - INFO - 样式目录: G:\GitHub\WindowsScript\DocManager\gui\styles
+2026-03-24 11:28:38,017 - utils.style_manager - INFO - 样式目录存在: True
+2026-03-24 11:28:38,017 - utils.style_manager - INFO - 加载样式文件: G:\GitHub\WindowsScript\DocManager\gui\styles\dark.qss
+2026-03-24 11:28:38,017 - utils.style_manager - INFO - 样式文件加载成功，长度: 8897
+2026-03-24 11:28:38,019 - utils.style_manager - INFO - 主题应用成功: dark
+2026-03-24 11:28:38,640 - gui.components.document_area - INFO - 切换到 list 视图
+2026-03-24 11:29:08,457 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 11:29:08,458 - core.database - INFO - 数据库连接已关闭
+2026-03-24 11:35:27,695 - utils.config_manager - INFO - 配置加载成功
+2026-03-24 11:35:27,695 - utils.style_manager - INFO - 样式目录: G:\GitHub\WindowsScript\DocManager\gui\styles
+2026-03-24 11:35:27,696 - utils.style_manager - INFO - 样式目录存在: True
+2026-03-24 11:35:27,696 - utils.style_manager - INFO - 加载样式文件: G:\GitHub\WindowsScript\DocManager\gui\styles\dark.qss
+2026-03-24 11:35:27,696 - utils.style_manager - INFO - 样式文件加载成功，长度: 8897
+2026-03-24 11:35:27,696 - utils.style_manager - INFO - 主题应用成功: dark
+2026-03-24 11:35:28,039 - gui.components.document_area - INFO - 切换到 list 视图
+2026-03-24 11:39:14,509 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 11:39:14,521 - core.database - INFO - 数据库连接成功: G:/资料库/Pan文档库/Pan文档库.db
+2026-03-24 11:39:14,523 - gui.components.sidebar - INFO - 加载分类完成
+2026-03-24 11:39:14,525 - gui.components.sidebar - INFO - 加载标签完成
+2026-03-24 11:39:14,530 - gui.components.sidebar - INFO - 加载智能文件夹完成
+2026-03-24 11:39:14,532 - gui.components.document_list - INFO - 加载了 11 个文档
+2026-03-24 11:39:14,547 - gui.components.document_grid - INFO - 网格视图加载了 11 个文档
+2026-03-24 11:39:14,548 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 11:39:14,549 - gui.main_window - INFO - 库打开成功: Pan文档库
+2026-03-24 11:39:14,593 - core.database - INFO - 数据库连接已关闭
+2026-03-24 11:39:14,594 - core.database - INFO - 数据库连接成功: G:/资料库/Pan文档库/Pan文档库.db
+2026-03-24 11:39:14,595 - gui.components.sidebar - INFO - 加载分类完成
+2026-03-24 11:39:14,596 - gui.components.sidebar - INFO - 加载标签完成
+2026-03-24 11:39:14,596 - gui.components.sidebar - INFO - 加载智能文件夹完成
+2026-03-24 11:39:14,642 - gui.components.document_list - INFO - 加载了 11 个文档
+2026-03-24 11:39:14,660 - gui.components.document_grid - INFO - 网格视图加载了 11 个文档
+2026-03-24 11:39:14,661 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 11:39:14,661 - gui.main_window - INFO - 库打开成功: Pan文档库
+2026-03-24 11:39:15,898 - gui.components.detail_panel - INFO - 加载文档详情: 《香肠派对》动画设计分析总结（精简版）.pptx
+2026-03-24 11:39:16,660 - gui.components.detail_panel - ERROR - 添加分类失败: 'CategoryManager' object has no attribute 'get_document_categories'
+2026-03-24 11:39:19,526 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 11:39:19,526 - core.database - INFO - 数据库连接已关闭
+2026-03-24 11:50:51,542 - utils.config_manager - INFO - 配置加载成功
+2026-03-24 11:50:51,542 - utils.style_manager - INFO - 样式目录: G:\GitHub\WindowsScript\DocManager\gui\styles
+2026-03-24 11:50:51,542 - utils.style_manager - INFO - 样式目录存在: True
+2026-03-24 11:50:51,543 - utils.style_manager - INFO - 加载样式文件: G:\GitHub\WindowsScript\DocManager\gui\styles\dark.qss
+2026-03-24 11:50:51,543 - utils.style_manager - INFO - 样式文件加载成功，长度: 8897
+2026-03-24 11:50:51,543 - utils.style_manager - INFO - 主题应用成功: dark
+2026-03-24 11:50:51,831 - gui.components.document_area - INFO - 切换到 list 视图
+2026-03-24 12:14:54,126 - utils.config_manager - INFO - 配置加载成功
+2026-03-24 12:14:54,126 - utils.style_manager - INFO - 样式目录: G:\GitHub\WindowsScript\docmanager\gui\styles
+2026-03-24 12:14:54,126 - utils.style_manager - INFO - 样式目录存在: True
+2026-03-24 12:14:54,127 - utils.style_manager - INFO - 加载样式文件: G:\GitHub\WindowsScript\docmanager\gui\styles\dark.qss
+2026-03-24 12:14:54,127 - utils.style_manager - INFO - 样式文件加载成功，长度: 8897
+2026-03-24 12:14:54,127 - utils.style_manager - INFO - 主题应用成功: dark
+2026-03-24 12:14:54,622 - gui.components.document_area - INFO - 切换到 list 视图
+2026-03-24 13:29:19,038 - core.database - INFO - 数据库连接成功: G:/资料库/Pan文档库/Pan文档库.db
+2026-03-24 13:29:19,042 - gui.components.sidebar - INFO - 加载分类完成
+2026-03-24 13:29:19,044 - gui.components.sidebar - INFO - 加载标签完成
+2026-03-24 13:29:19,045 - gui.components.sidebar - INFO - 加载智能文件夹完成
+2026-03-24 13:29:19,046 - gui.components.document_list - INFO - 加载了 11 个文档
+2026-03-24 13:29:19,058 - gui.components.document_grid - INFO - 网格视图加载了 11 个文档
+2026-03-24 13:29:19,059 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 13:29:19,059 - gui.main_window - INFO - 库打开成功: Pan文档库
+2026-03-24 13:29:20,159 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 13:29:20,159 - core.database - INFO - 数据库连接已关闭
+2026-03-24 13:29:23,944 - core.database - INFO - 数据库连接成功: G:/资料库/Pan文档库/Pan文档库.db
+2026-03-24 13:29:23,951 - gui.components.sidebar - INFO - 加载分类完成
+2026-03-24 13:29:23,953 - gui.components.sidebar - INFO - 加载标签完成
+2026-03-24 13:29:23,954 - gui.components.sidebar - INFO - 加载智能文件夹完成
+2026-03-24 13:29:23,996 - gui.components.document_list - INFO - 加载了 11 个文档
+2026-03-24 13:29:24,116 - gui.components.document_grid - INFO - 网格视图加载了 11 个文档
+2026-03-24 13:29:24,117 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 13:29:24,117 - gui.main_window - INFO - 库打开成功: Pan文档库
+2026-03-24 13:29:24,957 - utils.config_manager - INFO - 配置保存成功
+2026-03-24 13:29:24,958 - core.database - INFO - 数据库连接已关闭

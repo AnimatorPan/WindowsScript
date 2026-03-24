@@ -1,613 +1,610 @@
 """
-主窗口 - Visual Studio 2019 Dark 主题
+主窗口（完整更新版）
 """
-
-import os
-import sys
-from typing import Optional
-
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QSplitter, QStackedWidget,
-    QStatusBar, QMenuBar, QMenu, QFileDialog, QMessageBox,
-    QFrame, QTreeWidget, QTreeWidgetItem, QTableWidget,
-    QTableWidgetItem, QHeaderView
+    QSplitter, QMessageBox, QFileDialog
 )
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QAction, QKeySequence, QFont
+from PyQt6.QtGui import QAction, QKeySequence
+from pathlib import Path
+import logging
 
-# 修复导入路径
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.database import Database
+from core.library import LibraryManager
+from gui.components.toolbar import Toolbar
+from gui.components.sidebar import Sidebar
+from gui.components.document_area import DocumentArea
+from gui.components.detail_panel import DetailPanel
+from gui.components.statusbar import StatusBar
+from gui.dialogs.import_dialog import ImportDialog
+from gui.welcome_dialog import WelcomeDialog
+from utils.config_manager import ConfigManager
 
-from core.library import LibraryInfo, LibraryManager
-from gui.styles.app_styles import (
-    get_app_stylesheet, COLORS, 
-    PRIMARY_BUTTON_STYLE, DEFAULT_BUTTON_STYLE, SIDEBAR_BUTTON_STYLE
-)
-from gui.components.dialogs.welcome_dialog import WelcomeDialog
-
-
-class Sidebar(QWidget):
-    """侧边栏组件 - VS2019 Dark风格"""
-    
-    item_selected = pyqtSignal(str)
-    
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setObjectName('sidebar')
-        self.setMinimumWidth(220)
-        self.setMaximumWidth(280)
-        self.setup_ui()
-    
-    def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        
-        # 设置侧边栏背景
-        self.setStyleSheet(f'''
-            QWidget#sidebar {{
-                background-color: {COLORS['bg_secondary']};
-                border-right: 1px solid {COLORS['border']};
-            }}
-        ''')
-        
-        # 标题区域
-        header = QWidget()
-        header.setStyleSheet(f'background-color: {COLORS["bg_secondary"]};')
-        header_layout = QVBoxLayout(header)
-        header_layout.setContentsMargins(16, 20, 16, 16)
-        header_layout.setSpacing(6)
-        
-        # 应用标题
-        title = QLabel('📁 文档管家')
-        title.setStyleSheet(f'''
-            color: {COLORS['text_highlight']};
-            font-size: 16px;
-            font-weight: 600;
-        ''')
-        header_layout.addWidget(title)
-        
-        # 库名称
-        self.library_label = QLabel('未选择库')
-        self.library_label.setStyleSheet(f'''
-            color: {COLORS['text_secondary']};
-            font-size: 12px;
-            padding-top: 4px;
-        ''')
-        header_layout.addWidget(self.library_label)
-        
-        layout.addWidget(header)
-        
-        # 分隔线
-        separator = QFrame()
-        separator.setFrameShape(QFrame.Shape.HLine)
-        separator.setStyleSheet(f'background-color: {COLORS["border"]};')
-        separator.setFixedHeight(1)
-        layout.addWidget(separator)
-        
-        # 导航区域
-        nav_container = QWidget()
-        nav_container.setStyleSheet(f'background-color: {COLORS["bg_secondary"]};')
-        nav_layout = QVBoxLayout(nav_container)
-        nav_layout.setContentsMargins(12, 16, 12, 12)
-        nav_layout.setSpacing(4)
-        
-        # 导航项
-        nav_items = [
-            ('all', '📄', '全部文档'),
-            ('categories', '📂', '分类'),
-            ('tags', '🏷️', '标签'),
-            ('smart', '⚡', '智能文件夹'),
-            ('watched', '👁️', '监控文件夹'),
-        ]
-        
-        self.nav_buttons = {}
-        for item_id, icon, item_text in nav_items:
-            btn = QPushButton(f'{icon}  {item_text}')
-            btn.setCheckable(True)
-            btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            btn.setMinimumHeight(40)
-            # 直接应用侧边栏按钮样式
-            btn.setStyleSheet(SIDEBAR_BUTTON_STYLE)
-            btn.clicked.connect(lambda checked, id=item_id: self.on_nav_clicked(id))
-            nav_layout.addWidget(btn)
-            self.nav_buttons[item_id] = btn
-        
-        nav_layout.addStretch()
-        
-        # 底部设置按钮
-        settings_separator = QFrame()
-        settings_separator.setFrameShape(QFrame.Shape.HLine)
-        settings_separator.setStyleSheet(f'background-color: {COLORS["border"]};')
-        settings_separator.setFixedHeight(1)
-        nav_layout.addWidget(settings_separator)
-        
-        settings_btn = QPushButton('⚙️  设置')
-        settings_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        settings_btn.setMinimumHeight(40)
-        settings_btn.setStyleSheet(SIDEBAR_BUTTON_STYLE)
-        nav_layout.addWidget(settings_btn)
-        
-        layout.addWidget(nav_container)
-    
-    def on_nav_clicked(self, item_id: str):
-        """导航项被点击"""
-        for id, btn in self.nav_buttons.items():
-            btn.setChecked(id == item_id)
-        self.item_selected.emit(item_id)
-    
-    def set_library_name(self, name: str):
-        """设置当前库名称"""
-        self.library_label.setText(name)
-
-
-class MainContent(QWidget):
-    """主内容区 - VS2019 Dark风格"""
-    
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        # 先设置背景色
-        self.setStyleSheet(f'''
-            MainContent {{
-                background-color: {COLORS['bg_primary']};
-            }}
-        ''')
-        self.setup_ui()
-    
-    def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(20)
-        
-        # 工具栏
-        toolbar = QHBoxLayout()
-        toolbar.setSpacing(12)
-        
-        # 标题
-        self.title_label = QLabel('全部文档')
-        self.title_label.setStyleSheet(f'''
-            color: {COLORS['text_highlight']};
-            font-size: 24px;
-            font-weight: 600;
-        ''')
-        toolbar.addWidget(self.title_label)
-        
-        toolbar.addStretch()
-        
-        # 搜索按钮
-        search_btn = QPushButton('🔍 搜索')
-        search_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        search_btn.setMinimumHeight(36)
-        search_btn.setStyleSheet(DEFAULT_BUTTON_STYLE)
-        toolbar.addWidget(search_btn)
-        
-        # 视图切换按钮
-        view_btn = QPushButton('☰ 列表')
-        view_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        view_btn.setMinimumHeight(36)
-        view_btn.setStyleSheet(DEFAULT_BUTTON_STYLE)
-        toolbar.addWidget(view_btn)
-        
-        # 导入按钮
-        import_btn = QPushButton('+ 导入文档')
-        import_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        import_btn.setMinimumHeight(36)
-        import_btn.setStyleSheet(PRIMARY_BUTTON_STYLE)
-        toolbar.addWidget(import_btn)
-        
-        layout.addLayout(toolbar)
-        
-        # 内容区域
-        content_frame = QFrame()
-        content_frame.setObjectName('contentFrame')
-        content_frame.setStyleSheet(f'''
-            QFrame#contentFrame {{
-                background-color: {COLORS['bg_secondary']};
-                border: 1px solid {COLORS['border']};
-                border-radius: 4px;
-            }}
-        ''')
-        content_layout = QVBoxLayout(content_frame)
-        content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(0)
-        
-        # 内容堆叠器
-        self.stack = QStackedWidget()
-        self.stack.setStyleSheet(f'background-color: {COLORS["bg_secondary"]}; border: none;')
-        
-        # 全部文档页面
-        self.all_docs_page = self.create_all_docs_page()
-        self.stack.addWidget(self.all_docs_page)
-        
-        # 其他页面占位
-        self.categories_page = self.create_placeholder_page('分类管理')
-        self.stack.addWidget(self.categories_page)
-        
-        self.tags_page = self.create_placeholder_page('标签管理')
-        self.stack.addWidget(self.tags_page)
-        
-        self.smart_page = self.create_placeholder_page('智能文件夹')
-        self.stack.addWidget(self.smart_page)
-        
-        self.watched_page = self.create_placeholder_page('监控文件夹')
-        self.stack.addWidget(self.watched_page)
-        
-        content_layout.addWidget(self.stack)
-        layout.addWidget(content_frame)
-    
-    def create_all_docs_page(self):
-        """创建全部文档页面"""
-        page = QWidget()
-        page.setStyleSheet(f'background-color: {COLORS["bg_secondary"]};')
-        layout = QVBoxLayout(page)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(20)
-        
-        # 空状态
-        self.empty_widget = QWidget()
-        empty_layout = QVBoxLayout(self.empty_widget)
-        empty_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        empty_layout.setSpacing(20)
-        
-        # 图标
-        icon_label = QLabel('📁')
-        icon_label.setStyleSheet('font-size: 72px;')
-        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        empty_layout.addWidget(icon_label)
-        
-        # 主文字
-        empty_label = QLabel('暂无文档')
-        empty_label.setStyleSheet(f'''
-            color: {COLORS['text_secondary']};
-            font-size: 20px;
-            font-weight: 500;
-        ''')
-        empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        empty_layout.addWidget(empty_label)
-        
-        # 提示文字
-        empty_hint = QLabel('点击"导入文档"按钮添加您的第一个文档\n或拖拽文件到此处')
-        empty_hint.setStyleSheet(f'''
-            color: {COLORS['text_disabled']};
-            font-size: 14px;
-            line-height: 1.6;
-        ''')
-        empty_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        empty_layout.addWidget(empty_hint)
-        
-        # 快捷按钮
-        btn_layout = QHBoxLayout()
-        btn_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        quick_import = QPushButton('+ 导入文档')
-        quick_import.setCursor(Qt.CursorShape.PointingHandCursor)
-        quick_import.setMinimumHeight(40)
-        quick_import.setMinimumWidth(120)
-        quick_import.setStyleSheet(PRIMARY_BUTTON_STYLE)
-        btn_layout.addWidget(quick_import)
-        
-        empty_layout.addLayout(btn_layout)
-        
-        layout.addWidget(self.empty_widget)
-        
-        # 文档列表（初始隐藏）
-        self.doc_table = QTableWidget()
-        self.doc_table.setColumnCount(5)
-        self.doc_table.setHorizontalHeaderLabels(['文件名', '类型', '大小', '修改时间', '标签'])
-        self.doc_table.horizontalHeader().setStretchLastSection(True)
-        self.doc_table.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.doc_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.doc_table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
-        self.doc_table.setAlternatingRowColors(True)
-        self.doc_table.verticalHeader().setVisible(False)
-        self.doc_table.setStyleSheet(f'''
-            QTableWidget {{
-                background-color: {COLORS['bg_secondary']};
-                border: none;
-                gridline-color: {COLORS['border']};
-            }}
-            QTableWidget::item {{
-                padding: 12px;
-                border-bottom: 1px solid {COLORS['border']};
-                color: {COLORS['text_primary']};
-            }}
-            QTableWidget::item:selected {{
-                background-color: {COLORS['bg_selected']};
-                color: {COLORS['text_highlight']};
-            }}
-            QHeaderView::section {{
-                background-color: {COLORS['bg_tertiary']};
-                color: {COLORS['text_primary']};
-                padding: 12px;
-                border: none;
-                border-bottom: 1px solid {COLORS['border']};
-                border-right: 1px solid {COLORS['border']};
-                font-weight: 600;
-            }}
-        ''')
-        self.doc_table.hide()
-        layout.addWidget(self.doc_table)
-        
-        return page
-    
-    def create_placeholder_page(self, title_text):
-        """创建占位页面"""
-        page = QWidget()
-        page.setStyleSheet(f'background-color: {COLORS["bg_secondary"]};')
-        layout = QVBoxLayout(page)
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.setSpacing(20)
-        
-        icon_label = QLabel('🚧')
-        icon_label.setStyleSheet('font-size: 56px;')
-        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(icon_label)
-        
-        title = QLabel(title_text)
-        title.setStyleSheet(f'''
-            color: {COLORS['text_secondary']};
-            font-size: 18px;
-            font-weight: 500;
-        ''')
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title)
-        
-        hint = QLabel('功能开发中...')
-        hint.setStyleSheet(f'color: {COLORS["text_disabled"]}; font-size: 14px;')
-        hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(hint)
-        
-        return page
-    
-    def set_page(self, index: int, title: str):
-        """切换页面"""
-        self.title_label.setText(title)
-        self.stack.setCurrentIndex(index)
+logger = logging.getLogger(__name__)
 
 
 class MainWindow(QMainWindow):
-    """主窗口 - VS2019 Dark主题"""
+    """主窗口（完整版）"""
+    
+    library_changed = pyqtSignal(int)
+    document_selected = pyqtSignal(int)
     
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('文档管家')
-        self.setMinimumSize(1280, 800)
         
-        # 设置主窗口背景色
-        self.setStyleSheet(f'''
-            QMainWindow {{
-                background-color: {COLORS['bg_primary']};
-            }}
-        ''')
+        self.db = None
+        self.library_id = None
+        self.current_library = None
         
-        # 应用全局样式（在设置中央部件后）
-        # 先不应用全局样式，避免覆盖
-        
-        # 当前库
-        self.current_library: Optional[LibraryInfo] = None
-        self.library_manager = LibraryManager()
-        
-        self.setup_ui()
-        self.setup_menu()
-        
-        # 启动时显示欢迎对话框
-        self.show_welcome_dialog()
+        self.init_ui()
+        self.show_welcome()
     
-    def setup_ui(self):
-        """设置UI"""
-        # 中央部件 - 设置深色背景
-        central_widget = QWidget()
-        central_widget.setStyleSheet(f'background-color: {COLORS["bg_primary"]};')
-        self.setCentralWidget(central_widget)
+    def init_ui(self):
+        """初始化界面"""
+        self.setWindowTitle("DocManager - 文档管家")
+        self.setGeometry(100, 100, 1400, 900)
         
-        layout = QHBoxLayout(central_widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        self.create_menu_bar()
         
-        # 分割器 - 设置深色背景
-        splitter = QSplitter(Qt.Orientation.Horizontal)
-        splitter.setHandleWidth(2)
-        splitter.setStyleSheet(f'''
-            QSplitter {{
-                background-color: {COLORS['bg_primary']};
-            }}
-            QSplitter::handle {{
-                background-color: {COLORS['border']};
-            }}
-        ''')
+        self.toolbar = Toolbar(self)
+        self.addToolBar(self.toolbar)
         
-        # 侧边栏
-        self.sidebar = Sidebar()
-        self.sidebar.item_selected.connect(self.on_sidebar_item_selected)
-        splitter.addWidget(self.sidebar)
+        self.create_central_widget()
         
-        # 主内容区
-        self.main_content = MainContent()
-        splitter.addWidget(self.main_content)
-        
-        # 设置分割比例
-        splitter.setSizes([240, 1040])
-        splitter.setStretchFactor(0, 0)
-        splitter.setStretchFactor(1, 1)
-        
-        layout.addWidget(splitter)
-        
-        # 状态栏
-        self.status_bar = QStatusBar()
+        self.status_bar = StatusBar(self)
         self.setStatusBar(self.status_bar)
-        self.status_bar.showMessage('就绪')
-        self.status_bar.setStyleSheet(f'''
-            QStatusBar {{
-                background-color: {COLORS['accent']};
-                color: {COLORS['text_highlight']};
-                border-top: 1px solid {COLORS['border']};
-            }}
-        ''')
+        
+        self.connect_signals()
     
-    def setup_menu(self):
-        """设置菜单栏"""
+    def create_menu_bar(self):
+        """创建菜单栏"""
         menubar = self.menuBar()
-        menubar.setStyleSheet(f'''
-            QMenuBar {{
-                background-color: {COLORS['bg_secondary']};
-                color: {COLORS['text_primary']};
-                border-bottom: 1px solid {COLORS['border']};
-            }}
-            QMenuBar::item {{
-                background-color: transparent;
-                padding: 6px 12px;
-            }}
-            QMenuBar::item:selected {{
-                background-color: {COLORS['bg_selected']};
-                color: {COLORS['text_highlight']};
-            }}
-        ''')
         
         # 文件菜单
-        file_menu = menubar.addMenu('文件')
-        file_menu.setStyleSheet(f'''
-            QMenu {{
-                background-color: {COLORS['bg_secondary']};
-                color: {COLORS['text_primary']};
-                border: 1px solid {COLORS['border']};
-                padding: 4px;
-            }}
-            QMenu::item {{
-                padding: 6px 24px;
-                background-color: transparent;
-            }}
-            QMenu::item:selected {{
-                background-color: {COLORS['bg_selected']};
-                color: {COLORS['text_highlight']};
-            }}
-            QMenu::separator {{
-                height: 1px;
-                background-color: {COLORS['border']};
-                margin: 4px 8px;
-            }}
-        ''')
+        file_menu = menubar.addMenu("文件(&F)")
         
-        new_lib_action = QAction('新建库', self)
-        new_lib_action.setShortcut(QKeySequence.StandardKey.New)
-        new_lib_action.triggered.connect(self.show_welcome_dialog)
-        file_menu.addAction(new_lib_action)
+        new_action = QAction("新建库(&N)", self)
+        new_action.setShortcut(QKeySequence.StandardKey.New)
+        new_action.triggered.connect(self.show_welcome)
+        file_menu.addAction(new_action)
         
-        open_lib_action = QAction('打开库', self)
-        open_lib_action.setShortcut(QKeySequence.StandardKey.Open)
-        open_lib_action.triggered.connect(self.open_library)
-        file_menu.addAction(open_lib_action)
+        open_action = QAction("打开库(&O)", self)
+        open_action.setShortcut(QKeySequence.StandardKey.Open)
+        open_action.triggered.connect(self.show_welcome)
+        file_menu.addAction(open_action)
         
         file_menu.addSeparator()
         
-        import_action = QAction('导入文档', self)
-        import_action.triggered.connect(self.import_documents)
+        import_action = QAction("导入文档(&I)", self)
+        import_action.setShortcut("Ctrl+I")
+        import_action.triggered.connect(self.show_import_dialog)
         file_menu.addAction(import_action)
         
         file_menu.addSeparator()
         
-        exit_action = QAction('退出', self)
+        exit_action = QAction("退出(&X)", self)
         exit_action.setShortcut(QKeySequence.StandardKey.Quit)
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
         
         # 编辑菜单
-        edit_menu = menubar.addMenu('编辑')
+        edit_menu = menubar.addMenu("编辑(&E)")
         
-        # 视图菜单
-        view_menu = menubar.addMenu('视图')
+        select_all_action = QAction("全选(&A)", self)
+        select_all_action.setShortcut(QKeySequence.StandardKey.SelectAll)
+        edit_menu.addAction(select_all_action)
+        
+        # 查看菜单
+        view_menu = menubar.addMenu("查看(&V)")
+        
+        list_view_action = QAction("列表视图(&L)", self)
+        list_view_action.triggered.connect(lambda: self.document_area.switch_view('list'))
+        view_menu.addAction(list_view_action)
+        
+        grid_view_action = QAction("网格视图(&G)", self)
+        grid_view_action.triggered.connect(lambda: self.document_area.switch_view('grid'))
+        view_menu.addAction(grid_view_action)
+        
+        view_menu.addSeparator()
+        
+        stats_action = QAction("统计报表(&S)", self)
+        stats_action.triggered.connect(self.show_statistics)
+        view_menu.addAction(stats_action)
+        
+        # 工具菜单
+        tools_menu = menubar.addMenu("工具(&T)")
+        
+        category_action = QAction("管理分类(&C)", self)
+        category_action.triggered.connect(self.show_category_manager)
+        tools_menu.addAction(category_action)
+        
+        tag_action = QAction("管理标签(&G)", self)
+        tag_action.triggered.connect(self.show_tag_manager)
+        tools_menu.addAction(tag_action)
+        
+        tools_menu.addSeparator()
+        
+        unorganized_action = QAction("待整理中心(&U)", self)
+        unorganized_action.setShortcut("Ctrl+U")
+        unorganized_action.triggered.connect(self.show_unorganized_center)
+        tools_menu.addAction(unorganized_action)
+        
+        advanced_search_action = QAction("高级搜索(&F)", self)
+        advanced_search_action.setShortcut("Ctrl+Shift+F")
+        advanced_search_action.triggered.connect(self.show_advanced_search)
+        tools_menu.addAction(advanced_search_action)
+        
+        tools_menu.addSeparator()
+        
+        settings_action = QAction("设置(&S)", self)
+        settings_action.triggered.connect(self.show_settings)
+        tools_menu.addAction(settings_action)
         
         # 帮助菜单
-        help_menu = menubar.addMenu('帮助')
+        help_menu = menubar.addMenu("帮助(&H)")
         
-        about_action = QAction('关于', self)
+        about_action = QAction("关于(&A)", self)
         about_action.triggered.connect(self.show_about)
         help_menu.addAction(about_action)
     
-    def show_welcome_dialog(self):
+    def create_central_widget(self):
+        """创建中央部件"""
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        splitter = QSplitter(Qt.Orientation.Horizontal)
+        
+        # 左侧边栏
+        self.sidebar = Sidebar(self)
+        self.sidebar.setMinimumWidth(180)
+        self.sidebar.setMaximumWidth(300)
+        splitter.addWidget(self.sidebar)
+        
+        # 中间内容区
+        content_splitter = QSplitter(Qt.Orientation.Horizontal)
+        
+        # 文档内容区（含列表/网格切换）
+        self.document_area = DocumentArea(self)
+        content_splitter.addWidget(self.document_area)
+        
+        # 详情面板
+        self.detail_panel = DetailPanel(self)
+        self.detail_panel.setMinimumWidth(240)
+        self.detail_panel.setMaximumWidth(400)
+        content_splitter.addWidget(self.detail_panel)
+        
+        content_splitter.setStretchFactor(0, 7)
+        content_splitter.setStretchFactor(1, 3)
+        
+        splitter.addWidget(content_splitter)
+        splitter.setStretchFactor(0, 2)
+        splitter.setStretchFactor(1, 8)
+        
+        main_layout.addWidget(splitter)
+    
+    def connect_signals(self):
+        """连接信号（完整版）"""
+        # 工具栏
+        self.toolbar.import_clicked.connect(self.show_import_dialog)
+        self.toolbar.search_triggered.connect(self.on_search)
+        self.toolbar.advanced_search_clicked.connect(self.show_advanced_search)
+        self.toolbar.view_list_clicked.connect(
+            lambda: self.document_area.switch_view('list'))
+        self.toolbar.view_grid_clicked.connect(
+            lambda: self.document_area.switch_view('grid'))
+        self.toolbar.unorganized_clicked.connect(self.show_unorganized_center)
+        self.toolbar.statistics_clicked.connect(self.show_statistics)
+
+        # 侧边栏
+        self.sidebar.all_documents_clicked.connect(self.on_all_documents)
+        self.sidebar.category_selected.connect(self.on_category_selected)
+        self.sidebar.tag_selected.connect(self.on_tag_selected)
+        self.sidebar.smart_folder_selected.connect(self.on_smart_folder_selected)
+        self.sidebar.uncategorized_clicked.connect(self.on_uncategorized)
+        self.sidebar.untagged_clicked.connect(self.on_untagged)
+        self.sidebar.duplicates_clicked.connect(self.on_duplicates)
+        self.sidebar.sidebar_refreshed.connect(self.on_sidebar_refreshed)
+
+        # 文档内容区
+        self.document_area.document_selected.connect(self.on_document_selected)
+        self.document_area.selection_changed.connect(self.on_selection_changed)
+        self.document_area.documents_updated.connect(self.on_documents_updated)
+
+        # 详情面板
+        self.detail_panel.document_updated.connect(self.on_document_updated)
+
+        # 库切换
+        self.library_changed.connect(self.on_library_changed)
+    def show_welcome(self):
         """显示欢迎对话框"""
         dialog = WelcomeDialog(self)
-        dialog.library_selected.connect(self.on_library_selected)
+        if dialog.exec():
+            library_info = dialog.get_selected_library()
+            if library_info:
+                self.open_library(library_info['id'], library_info['db_path'])
+    
+    def open_library(self, library_id: int, db_path: str):
+        """打开库"""
+        try:
+            if not Path(db_path).exists():
+                raise FileNotFoundError(f"数据库文件不存在: {db_path}")
+
+            if self.db:
+                self.db.close()
+
+            self.db = Database(db_path)
+            self.db.connect()
+            self.library_id = library_id
+
+            lib_manager = LibraryManager(self.db)
+            self.current_library = lib_manager.get(library_id)
+
+            if not self.current_library:
+                raise ValueError(f"找不到库记录: ID={library_id}")
+
+            self.setWindowTitle(f"DocManager - {self.current_library['name']}")
+            self.library_changed.emit(library_id)
+            self.status_bar.show_message(f"已打开库: {self.current_library['name']}")
+
+            # 记录到最近打开
+            config = ConfigManager()
+            config.add_recent_library(
+                library_id, self.current_library['name'], db_path)
+
+            logger.info(f"库打开成功: {self.current_library['name']}")
+
+        except Exception as e:
+            logger.error(f"打开库失败: {e}", exc_info=True)
+            QMessageBox.critical(self, "错误", f"打开库失败:\n\n{str(e)}")
+    
+    def on_library_changed(self, library_id: int):
+        """库切换后加载数据"""
+        if not self.db or not library_id:
+            return
+        
+        try:
+            self.sidebar.load_library(library_id)
+            self.on_all_documents()
+        
+        except Exception as e:
+            logger.error(f"加载库数据失败: {e}", exc_info=True)
+    
+    def on_all_documents(self):
+        """显示全部文档"""
+        if not self.db or not self.library_id:
+            return
+        
+        try:
+            from core.document import DocumentManager
+            
+            doc_manager = DocumentManager(self.db, self.library_id)
+            docs = doc_manager.list_all(limit=1000)
+            
+            self.document_area.load_documents(docs)
+            self.status_bar.show_message(f"全部文档: {len(docs)} 个")
+        
+        except Exception as e:
+            logger.error(f"加载文档失败: {e}", exc_info=True)
+    
+    def show_import_dialog(self):
+        """显示导入对话框"""
+        if not self.db or not self.library_id:
+            QMessageBox.warning(self, "提示", "请先打开一个库")
+            return
+        
+        dialog = ImportDialog(
+            self.db,
+            self.library_id,
+            self.current_library['storage_path'],
+            self
+        )
+        dialog.import_completed.connect(self.on_import_completed)
         dialog.exec()
     
-    def on_library_selected(self, library: LibraryInfo):
-        """库被选中"""
-        self.current_library = library
-        self.sidebar.set_library_name(library.name)
-        self.setWindowTitle(f'文档管家 - {library.name}')
-        self.status_bar.showMessage(f'已打开库: {library.path}')
-    
-    def on_sidebar_item_selected(self, item_id: str):
-        """侧边栏项被选中"""
-        page_map = {
-            'all': (0, '全部文档'),
-            'categories': (1, '分类'),
-            'tags': (2, '标签'),
-            'smart': (3, '智能文件夹'),
-            'watched': (4, '监控文件夹'),
-        }
-        
-        if item_id in page_map:
-            index, title = page_map[item_id]
-            self.main_content.set_page(index, title)
-    
-    def open_library(self):
-        """打开已有库"""
-        path = QFileDialog.getExistingDirectory(
-            self,
-            '选择文档库文件夹',
-            os.path.expanduser('~')
-        )
-        
-        if not path:
+    def show_statistics(self):
+        """显示统计报表"""
+        if not self.db or not self.library_id:
+            QMessageBox.warning(self, "提示", "请先打开一个库")
             return
         
-        if not self.library_manager.is_valid_library(path):
-            QMessageBox.warning(
-                self,
-                '无效的库',
-                '选择的文件夹不是有效的文档库。'
-            )
+        from gui.statistics_window import StatisticsWindow
+        
+        window = StatisticsWindow(self.db, self.library_id, self)
+        window.show()
+    
+    def show_category_manager(self):
+        """显示分类管理"""
+        if not self.db or not self.library_id:
+            QMessageBox.warning(self, "提示", "请先打开一个库")
             return
         
-        library = self.library_manager.open_library(path)
-        if library:
-            self.on_library_selected(library)
+        from gui.dialogs.category_dialog import CategoryDialog
+        
+        dialog = CategoryDialog(self.db, self.library_id, self)
+        dialog.exec()
+        
+        # 刷新侧边栏
+        self.sidebar.load_categories()
+    
+    def show_tag_manager(self):
+        """显示标签管理"""
+        if not self.db or not self.library_id:
+            QMessageBox.warning(self, "提示", "请先打开一个库")
+            return
+        
+        from gui.dialogs.tag_dialog import TagDialog
+        
+        dialog = TagDialog(self.db, self.library_id, self)
+        dialog.exec()
+        
+        # 刷新侧边栏
+        self.sidebar.load_tags()
+    
+    def show_unorganized_center(self):
+        """显示待整理中心"""
+        if not self.db or not self.library_id:
+            QMessageBox.warning(self, "提示", "请先打开一个库")
+            return
+        
+        from gui.unorganized_center import UnorganizedCenter
+        
+        window = UnorganizedCenter(self.db, self.library_id, self)
+        window.show()
+    
+    def show_advanced_search(self):
+        """显示高级搜索"""
+        if not self.db or not self.library_id:
+            QMessageBox.warning(self, "提示", "请先打开一个库")
+            return
+        
+        from gui.dialogs.advanced_search_dialog import AdvancedSearchDialog
+        
+        dialog = AdvancedSearchDialog(self.db, self.library_id, self)
+        dialog.search_triggered.connect(self.on_advanced_search)
+        dialog.show()
+    
+    def show_settings(self):
+        """显示设置"""
+        from gui.dialogs.settings_dialog import SettingsDialog
+        
+        dialog = SettingsDialog(self)
+        dialog.exec()
+    
+    def on_search(self, keyword: str):
+        """基础搜索"""
+        if not self.db or not self.library_id:
+            return
+        
+        from core.search import SearchEngine
+        
+        search_engine = SearchEngine(self.db, self.library_id)
+        results = search_engine.search_by_filename(keyword)
+        
+        self.document_area.load_documents(results)
+        self.status_bar.show_message(f"搜索 '{keyword}': 找到 {len(results)} 个文档")
+    
+    def on_advanced_search(self, filters: dict):
+        """高级搜索"""
+        if not self.db or not self.library_id:
+            return
+        
+        from core.search import SearchEngine
+        
+        search_engine = SearchEngine(self.db, self.library_id)
+        results = search_engine.complex_search(filters)
+        
+        self.document_area.load_documents(results)
+        self.status_bar.show_message(f"高级搜索: 找到 {len(results)} 个文档")
+    
+    def on_category_selected(self, category_id: int):
+        """分类选中"""
+        if not self.db or not self.library_id:
+            return
+        
+        from core.document import DocumentManager
+        
+        doc_manager = DocumentManager(self.db, self.library_id)
+        docs = doc_manager.list_by_category(category_id)
+        
+        self.document_area.load_documents(docs)
+        self.status_bar.show_message(f"分类文档: {len(docs)} 个")
+    
+    def on_tag_selected(self, tag_id: int):
+        """标签选中"""
+        if not self.db or not self.library_id:
+            return
+        
+        from core.document import DocumentManager
+        
+        doc_manager = DocumentManager(self.db, self.library_id)
+        docs = doc_manager.list_by_tag(tag_id)
+        
+        self.document_area.load_documents(docs)
+        self.status_bar.show_message(f"标签文档: {len(docs)} 个")
+    
+    def on_smart_folder_selected(self, folder_id: int):
+        """智能文件夹选中"""
+        if not self.db or not self.library_id:
+            return
+        
+        from core.smart_folder import SmartFolderManager
+        
+        sf_manager = SmartFolderManager(self.db, self.library_id)
+        docs = sf_manager.get_matched_documents(folder_id)
+        
+        self.document_area.load_documents(docs)
+        self.status_bar.show_message(f"智能文件夹: {len(docs)} 个文档")
+    
+    def on_document_selected(self, document_id: int):
+        """文档选中"""
+        self.document_selected.emit(document_id)
+        self.detail_panel.load_document(document_id)
+    
+    def on_selection_changed(self, count: int):
+        """选择数量变化"""
+        if count == 0:
+            self.status_bar.show_message("就绪")
         else:
-            QMessageBox.critical(self, '错误', '无法打开文档库')
+            self.status_bar.show_message(f"已选择 {count} 个文档")
     
-    def import_documents(self):
-        """导入文档"""
-        if not self.current_library:
-            QMessageBox.warning(self, '提示', '请先打开或创建一个文档库')
-            return
-        
-        files, _ = QFileDialog.getOpenFileNames(
-            self,
-            '选择要导入的文档',
-            os.path.expanduser('~'),
-            '所有文件 (*.*);;PDF文件 (*.pdf);;Word文档 (*.doc *.docx);;Excel表格 (*.xls *.xlsx);;图片 (*.png *.jpg *.jpeg)'
+    def on_documents_updated(self):
+        """文档更新后刷新"""
+        self.on_all_documents()
+    
+    def on_document_updated(self):
+        """文档信息更新"""
+        pass
+    
+    def on_import_completed(self, result):
+        """导入完成"""
+        self.status_bar.show_message(
+            f"导入完成: 成功 {result.success}, 重复 {result.duplicate}, 失败 {result.failed}"
         )
-        
-        if files:
-            QMessageBox.information(
-                self,
-                '导入',
-                f'选择了 {len(files)} 个文件，导入功能开发中...'
-            )
+        self.on_all_documents()
+        self.sidebar.load_library(self.library_id)
     
     def show_about(self):
-        """显示关于对话框"""
+        """关于"""
         QMessageBox.about(
             self,
-            '关于文档管家',
-            '<h2>文档管家 1.0.0</h2>'
-            '<p>智能文档分类管理系统</p>'
-            '<p>功能特性：</p>'
-            '<ul>'
-            '<li>智能文件夹自动分类</li>'
-            '<li>层级标签管理</li>'
-            '<li>实时监控自动导入</li>'
-            '<li>全文搜索支持</li>'
-            '</ul>'
+            "关于 DocManager",
+            "<h3>DocManager - 文档管家</h3>"
+            "<p>版本: 1.0.0</p>"
+            "<p>面向小团队的文档分类管理系统</p>"
+            "<br>"
+            "<p><b>功能特性:</b></p>"
+            "<ul>"
+            "<li>统一管理团队文档</li>"
+            "<li>分类与标签组织</li>"
+            "<li>智能文件夹</li>"
+            "<li>去重管理</li>"
+            "<li>批量操作</li>"
+            "</ul>"
+        )
+    
+    def on_uncategorized(self):
+        """显示未分类文档"""
+        if not self.db or not self.library_id:
+            return
+
+        from core.document import DocumentManager
+
+        doc_manager = DocumentManager(self.db, self.library_id)
+        docs = doc_manager.list_uncategorized()
+
+        self.document_area.load_documents(docs)
+        self.status_bar.show_message(f"未分类文档: {len(docs)} 个")
+    def on_untagged(self):
+        """显示未打标签文档"""
+        if not self.db or not self.library_id:
+            return
+
+        from core.document import DocumentManager
+
+        doc_manager = DocumentManager(self.db, self.library_id)
+        docs = doc_manager.list_untagged()
+
+        self.document_area.load_documents(docs)
+        self.status_bar.show_message(f"未打标签文档: {len(docs)} 个")
+
+
+    def on_duplicates(self):
+        """显示重复文档"""
+        if not self.db or not self.library_id:
+            return
+
+        from core.document import DocumentManager
+
+        doc_manager = DocumentManager(self.db, self.library_id)
+        docs = doc_manager.list_duplicates()
+
+        self.document_area.load_documents(docs)
+        self.status_bar.show_message(f"重复文档: {len(docs)} 个")
+
+
+    def on_sidebar_refreshed(self):
+        """侧边栏刷新后同步状态栏"""
+        if self.library_id:
+            from core.library import LibraryManager
+
+            lib_manager = LibraryManager(self.db)
+            stats = lib_manager.get_statistics(self.library_id)
+            self.status_bar.set_info(
+                f"共 {stats['total_documents']} 个文档  |  "
+                f"未分类 {stats['uncategorized_documents']}  |  "
+                f"重复 {stats['duplicate_documents']}"
+            )
+    def closeEvent(self, event):
+        """关闭时保存窗口状态"""
+        config = ConfigManager()
+        geo = self.geometry()
+        config.save_window_geometry(geo.x(), geo.y(), geo.width(), geo.height())
+
+        if self.db:
+            self.db.close()
+
+        event.accept()
+    def try_restore_last_library(self) -> bool:
+        """尝试恢复上次打开的库"""
+        config = ConfigManager()
+
+        if not config.get("auto_open_last", True):
+            return False
+
+        last = config.get_last_library()
+        if not last:
+            return False
+
+        try:
+            self.open_library(last['id'], last['db_path'])
+            return True
+        except Exception as e:
+            logger.warning(f"恢复上次库失败: {e}")
+            return False
+
+    def on_uncategorized(self):
+        """显示未分类文档"""
+        if not self.db or not self.library_id:
+            return
+        from core.document import DocumentManager
+        doc_manager = DocumentManager(self.db, self.library_id)
+        docs = doc_manager.list_uncategorized()
+        self.document_area.load_documents(docs)
+        self.status_bar.show_message(f"未分类文档: {len(docs)} 个")
+
+    def on_untagged(self):
+        """显示未打标签文档"""
+        if not self.db or not self.library_id:
+            return
+        from core.document import DocumentManager
+        doc_manager = DocumentManager(self.db, self.library_id)
+        docs = doc_manager.list_untagged()
+        self.document_area.load_documents(docs)
+        self.status_bar.show_message(f"未打标签文档: {len(docs)} 个")
+
+    def on_duplicates(self):
+        """显示重复文档"""
+        if not self.db or not self.library_id:
+            return
+        from core.document import DocumentManager
+        doc_manager = DocumentManager(self.db, self.library_id)
+        docs = doc_manager.list_duplicates()
+        self.document_area.load_documents(docs)
+        self.status_bar.show_message(f"重复文档: {len(docs)} 个")
+
+    def on_sidebar_refreshed(self):
+        """侧边栏刷新后更新状态栏"""
+        if not self.db or not self.library_id:
+            return
+        lib_manager = LibraryManager(self.db)
+        stats = lib_manager.get_statistics(self.library_id)
+        self.status_bar.set_info(
+            f"共 {stats['total_documents']} 个文档  |  "
+            f"未分类 {stats['uncategorized_documents']}  |  "
+            f"重复 {stats['duplicate_documents']}"
         )

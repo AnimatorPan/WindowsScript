@@ -1,16 +1,17 @@
 """
-数据库模块 - 管理SQLite数据库连接和操作
+数据库操作核心模块
 """
-
 import sqlite3
-import os
-from datetime import datetime
+from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple
 from contextlib import contextmanager
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Database:
-    """数据库管理类"""
+    """数据库操作封装类"""
     
     def __init__(self, db_path: str):
         """
@@ -20,235 +21,246 @@ class Database:
             db_path: 数据库文件路径
         """
         self.db_path = db_path
-        self._connection: Optional[sqlite3.Connection] = None
+        self.conn: Optional[sqlite3.Connection] = None
+    
+    def connect(self) -> sqlite3.Connection:
+        """
+        建立数据库连接
         
-    def connect(self) -> 'Database':
-        """建立数据库连接"""
-        self._connection = sqlite3.connect(self.db_path)
-        self._connection.row_factory = sqlite3.Row
-        # 启用外键支持
-        self._connection.execute("PRAGMA foreign_keys = ON")
-        return self
+        Returns:
+            数据库连接对象
+        """
+        if self.conn is None:
+            self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            self.conn.row_factory = sqlite3.Row
+            
+            # 启用外键约束
+            self.conn.execute("PRAGMA foreign_keys = ON")
+            
+            # 使用 WAL 模式提高并发性能
+            self.conn.execute("PRAGMA journal_mode=WAL")
+            
+            logger.info(f"数据库连接成功: {self.db_path}")
+        
+        return self.conn
     
     def close(self):
         """关闭数据库连接"""
-        if self._connection:
-            self._connection.close()
-            self._connection = None
+        if self.conn:
+            self.conn.close()
+            self.conn = None
+            logger.info("数据库连接已关闭")
     
-    def init_schema(self):
-        """初始化数据库表结构"""
-        cursor = self._connection.cursor()
+    def execute(self, sql: str, params: Tuple = ()) -> sqlite3.Cursor:
+        """
+        执行 SQL 语句
         
-        # 库信息表
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS libraries (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                path TEXT NOT NULL UNIQUE,
-                description TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
+        Args:
+            sql: SQL 语句
+            params: 参数元组
+            
+        Returns:
+            游标对象
+        """
+        try:
+            conn = self.connect()
+            cursor = conn.execute(sql, params)
+            return cursor
+        except sqlite3.Error as e:
+            logger.error(f"SQL 执行错误: {e}, SQL: {sql}")
+            raise
+    
+    def fetch_one(self, sql: str, params: Tuple = ()) -> Optional[Dict[str, Any]]:
+        """
+        查询单条记录
         
-        # 文档表
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS documents (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                filename TEXT NOT NULL,
-                filepath TEXT NOT NULL,
-                file_hash TEXT NOT NULL,
-                size INTEGER NOT NULL,
-                file_type TEXT,
-                created_at TIMESTAMP,
-                modified_at TIMESTAMP,
-                imported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                library_id INTEGER NOT NULL,
-                FOREIGN KEY (library_id) REFERENCES libraries(id) ON DELETE CASCADE
-            )
-        ''')
+        Args:
+            sql: SQL 语句
+            params: 参数元组
+            
+        Returns:
+            字典形式的记录，不存在返回 None
+        """
+        cursor = self.execute(sql, params)
+        row = cursor.fetchone()
+        return dict(row) if row else None
+    
+    def fetch_all(self, sql: str, params: Tuple = ()) -> List[Dict[str, Any]]:
+        """
+        查询多条记录
         
-        # 分类表
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS categories (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                parent_id INTEGER,
-                library_id INTEGER NOT NULL,
-                order_index INTEGER DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE,
-                FOREIGN KEY (library_id) REFERENCES libraries(id) ON DELETE CASCADE
-            )
-        ''')
+        Args:
+            sql: SQL 语句
+            params: 参数元组
+            
+        Returns:
+            字典列表
+        """
+        cursor = self.execute(sql, params)
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+    
+    def insert(self, sql: str, params: Tuple = (), autocommit: bool = True) -> int:
+        """
+        插入记录
         
-        # 文档-分类关联表
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS document_categories (
-                document_id INTEGER NOT NULL,
-                category_id INTEGER NOT NULL,
-                PRIMARY KEY (document_id, category_id),
-                FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE,
-                FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
-            )
-        ''')
+        Args:
+            sql: SQL 语句
+            params: 参数元组
+            autocommit: 是否自动提交（事务中设为 False）
+            
+        Returns:
+            新插入记录的 ID
+        """
+        cursor = self.execute(sql, params)
+        if autocommit:
+            self.commit()
+        return cursor.lastrowid
+    
+    def update(self, sql: str, params: Tuple = (), autocommit: bool = True) -> int:
+        """
+        更新记录
         
-        # 标签表
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS tags (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                parent_id INTEGER,
-                color TEXT DEFAULT '#1890ff',
-                library_id INTEGER NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (parent_id) REFERENCES tags(id) ON DELETE CASCADE,
-                FOREIGN KEY (library_id) REFERENCES libraries(id) ON DELETE CASCADE
-            )
-        ''')
+        Args:
+            sql: SQL 语句
+            params: 参数元组
+            autocommit: 是否自动提交（事务中设为 False）
+            
+        Returns:
+            影响的行数
+        """
+        cursor = self.execute(sql, params)
+        if autocommit:
+            self.commit()
+        return cursor.rowcount
+    
+    def delete(self, sql: str, params: Tuple = (), autocommit: bool = True) -> int:
+        """
+        删除记录
         
-        # 文档-标签关联表
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS document_tags (
-                document_id INTEGER NOT NULL,
-                tag_id INTEGER NOT NULL,
-                PRIMARY KEY (document_id, tag_id),
-                FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE,
-                FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
-            )
-        ''')
-        
-        # 智能文件夹表
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS smart_folders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                rules_json TEXT NOT NULL,
-                library_id INTEGER NOT NULL,
-                is_enabled BOOLEAN DEFAULT 1,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (library_id) REFERENCES libraries(id) ON DELETE CASCADE
-            )
-        ''')
-        
-        # 监控文件夹表
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS watched_folders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                path TEXT NOT NULL,
-                library_id INTEGER NOT NULL,
-                auto_import BOOLEAN DEFAULT 1,
-                include_subfolders BOOLEAN DEFAULT 1,
-                file_patterns TEXT DEFAULT '*.*',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (library_id) REFERENCES libraries(id) ON DELETE CASCADE
-            )
-        ''')
-        
-        # 创建索引
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_docs_library ON documents(library_id)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_docs_hash ON documents(file_hash)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_docs_filename ON documents(filename)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_categories_parent ON categories(parent_id)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_categories_library ON categories(library_id)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_tags_parent ON tags(parent_id)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_tags_library ON tags(library_id)')
-        
-        self._connection.commit()
+        Args:
+            sql: SQL 语句
+            params: 参数元组
+            autocommit: 是否自动提交（事务中设为 False）
+            
+        Returns:
+            影响的行数
+        """
+        cursor = self.execute(sql, params)
+        if autocommit:
+            self.commit()
+        return cursor.rowcount
+    
+    def commit(self):
+        """提交事务"""
+        if self.conn:
+            self.conn.commit()
+    
+    def rollback(self):
+        """回滚事务"""
+        if self.conn:
+            self.conn.rollback()
     
     @contextmanager
     def transaction(self):
-        """事务上下文管理器"""
+        """
+        事务上下文管理器
+        
+        使用方式:
+            with db.transaction():
+                db.execute(...)
+                db.execute(...)
+        """
         try:
-            yield self._connection
-            self._connection.commit()
+            yield self
+            self.commit()
         except Exception as e:
-            self._connection.rollback()
-            raise e
+            self.rollback()
+            logger.error(f"事务回滚: {e}")
+            raise
     
-    def execute(self, sql: str, parameters: Tuple = ()) -> sqlite3.Cursor:
-        """执行SQL语句"""
-        return self._connection.execute(sql, parameters)
-    
-    def executemany(self, sql: str, parameters: List[Tuple]) -> sqlite3.Cursor:
-        """批量执行SQL语句"""
-        return self._connection.executemany(sql, parameters)
-    
-    def fetchone(self, sql: str, parameters: Tuple = ()) -> Optional[sqlite3.Row]:
-        """查询单条记录"""
-        cursor = self._connection.execute(sql, parameters)
-        return cursor.fetchone()
-    
-    def fetchall(self, sql: str, parameters: Tuple = ()) -> List[sqlite3.Row]:
-        """查询多条记录"""
-        cursor = self._connection.execute(sql, parameters)
-        return cursor.fetchall()
-    
-    def insert(self, table: str, data: Dict[str, Any]) -> int:
+    def init_database(self):
         """
-        插入数据
+        初始化数据库（创建所有表）
+        """
+        schema_path = Path(__file__).parent / "schema.sql"
         
-        Args:
-            table: 表名
-            data: 数据字典
+        if not schema_path.exists():
+            raise FileNotFoundError(f"数据库脚本文件不存在: {schema_path}")
+        
+        with open(schema_path, 'r', encoding='utf-8') as f:
+            sql_script = f.read()
+        
+        try:
+            conn = self.connect()
+            conn.executescript(sql_script)
+            self.commit()
+            logger.info("数据库初始化成功")
+            self._run_migrations()
+        except sqlite3.Error as e:
+            logger.error(f"数据库初始化失败: {e}")
+            raise
+    
+    def _run_migrations(self):
+        """运行数据库迁移"""
+        try:
+            conn = self.connect()
+            cursor = conn.cursor()
             
-        Returns:
-            插入行的ID
-        """
-        columns = ', '.join(data.keys())
-        placeholders = ', '.join(['?' for _ in data])
-        sql = f'INSERT INTO {table} ({columns}) VALUES ({placeholders})'
-        
-        cursor = self._connection.execute(sql, tuple(data.values()))
-        return cursor.lastrowid
-    
-    def update(self, table: str, data: Dict[str, Any], where: str, 
-               where_params: Tuple = ()) -> int:
-        """
-        更新数据
-        
-        Args:
-            table: 表名
-            data: 要更新的数据
-            where: WHERE条件
-            where_params: WHERE参数
+            # 检查 documents 表是否有 note 字段
+            cursor.execute("PRAGMA table_info(documents)")
+            columns = [row[1] for row in cursor.fetchall()]
             
-        Returns:
-            受影响的行数
-        """
-        set_clause = ', '.join([f'{k} = ?' for k in data.keys()])
-        sql = f'UPDATE {table} SET {set_clause} WHERE {where}'
-        
-        params = tuple(data.values()) + where_params
-        cursor = self._connection.execute(sql, params)
-        return cursor.rowcount
-    
-    def delete(self, table: str, where: str, where_params: Tuple = ()) -> int:
-        """
-        删除数据
-        
-        Args:
-            table: 表名
-            where: WHERE条件
-            where_params: WHERE参数
+            if 'note' not in columns:
+                cursor.execute("ALTER TABLE documents ADD COLUMN note TEXT")
+                logger.info("迁移: 添加 note 字段到 documents 表")
             
-        Returns:
-            受影响的行数
-        """
-        sql = f'DELETE FROM {table} WHERE {where}'
-        cursor = self._connection.execute(sql, where_params)
-        return cursor.rowcount
+            self.commit()
+            logger.info("数据库迁移完成")
+        except sqlite3.Error as e:
+            logger.error(f"数据库迁移失败: {e}")
+            raise
     
     def table_exists(self, table_name: str) -> bool:
-        """检查表是否存在"""
+        """
+        检查表是否存在
+        
+        Args:
+            table_name: 表名
+            
+        Returns:
+            是否存在
+        """
         sql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?"
-        result = self.fetchone(sql, (table_name,))
+        result = self.fetch_one(sql, (table_name,))
         return result is not None
     
-    def get_row_count(self, table: str, where: str = '1=1', 
-                      where_params: Tuple = ()) -> int:
-        """获取表行数"""
-        sql = f'SELECT COUNT(*) FROM {table} WHERE {where}'
-        result = self.fetchone(sql, where_params)
-        return result[0] if result else 0
+    def get_table_count(self, table_name: str) -> int:
+        """
+        获取表记录数
+        
+        Args:
+            table_name: 表名
+            
+        Returns:
+            记录数
+        """
+        sql = f"SELECT COUNT(*) as count FROM {table_name}"
+        result = self.fetch_one(sql)
+        return result['count'] if result else 0
+
+
+def create_database(db_path: str) -> Database:
+    """
+    创建并初始化数据库
+    
+    Args:
+        db_path: 数据库文件路径
+        
+    Returns:
+        Database 对象
+    """
+    db = Database(db_path)
+    db.connect()
+    db.init_database()
+    return db
